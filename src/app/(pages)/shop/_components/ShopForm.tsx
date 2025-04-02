@@ -8,6 +8,7 @@ type Props = {
 };
 
 export const ShopForm = ({ shop }: Props) => {
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const [name, setName] = useState(shop?.name ?? "");
   const inputRef = useRef<HTMLInputElement>(null);
@@ -15,6 +16,7 @@ export const ShopForm = ({ shop }: Props) => {
     async (e: FormEvent) => {
       e.preventDefault();
       try {
+        setIsLoading(true);
         await fetch("/api/shop", {
           method: shop ? "PUT" : "POST",
           body: JSON.stringify(shop ? { name, id: shop.id } : { name }),
@@ -22,10 +24,24 @@ export const ShopForm = ({ shop }: Props) => {
         router.push(shop ? `/shop/${shop.id}` : "/");
       } catch (e) {
         console.log(e);
+      } finally {
+        setIsLoading(false);
       }
     },
     [shop, name, router]
   );
+  const handleDelete = useCallback(async () => {
+    const confirm = window.confirm("Delete shop?");
+    if (!confirm) return;
+    try {
+      setIsLoading(true);
+      await fetch(`/api/shop/${shop?.id}`, { method: "DELETE" });
+      router.push("/");
+    } catch {
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
   useEffect(() => {
     inputRef.current?.focus();
     inputRef.current?.select();
@@ -47,9 +63,22 @@ export const ShopForm = ({ shop }: Props) => {
           />
         </label>
         <div className="text-center">
-          <button type="submit" disabled={!name || name === shop?.name}>
+          <button
+            type="submit"
+            disabled={!name || name === shop?.name || isLoading}
+          >
             {shop ? "Update" : "Create"}
           </button>
+          {shop && (
+            <>
+              <button type="button" onClick={handleDelete} disabled={isLoading}>
+                Delete
+              </button>
+              <button disabled={isLoading} onClick={() => router.back()}>
+                Cancel
+              </button>
+            </>
+          )}
         </div>
       </fieldset>
     </form>

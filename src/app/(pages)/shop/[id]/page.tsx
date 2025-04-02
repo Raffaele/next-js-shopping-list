@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { ProductForm } from "./_components/ProductForm";
 import Link from "next/link";
 import Image from "next/image";
+import { ProductTable } from "./_components/ProductsTable";
 
 const ShopDetailsPage = async ({
   params,
@@ -21,16 +22,7 @@ const ShopDetailsPage = async ({
           <Image src="/edit.svg" alt="edit" width={20} height={20} />
         </Link>
       </header>
-
-      <ul>
-        {shop.products.map(({ id, name, quantity }) => (
-          <li key={id}>
-            {name} ({quantity})
-          </li>
-        ))}
-      </ul>
-
-      <ProductForm shopId={+id} />
+      <ProductTable shopId={+id} products={shop.products} />
     </div>
   );
 };

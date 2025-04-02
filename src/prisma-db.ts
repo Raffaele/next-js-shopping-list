@@ -17,6 +17,11 @@ export async function getShop(id: number) {
   return await prisma.shop.findUnique({ where: { id }, select: { name: true, products: true } });
 }
 
+export async function deleteShop(id: number) {
+  await waitRandomly();
+  return await prisma.shop.delete({ where: { id } });
+}
+
 export async function createShop(shopName: string) {
   await waitRandomly();
   return await prisma.shop.create({ data: { name: shopName } });
@@ -28,7 +33,16 @@ export async function updateShopName(id: number, name: string) {
 }
 
 export async function createShopProduct(shopId: number, productName: string, quantity: number) {
-  console.log('inside', { shopId, productName, quantity });
   await waitRandomly();
   return await prisma.product.create({ data: { name: productName, quantity, shopId } });
+}
+
+export async function updateShopProduct(id: number, name: string, quantity: number) {
+  await waitRandomly();
+  return await prisma.product.update({ where: { id }, data: { quantity, name } });
+}
+
+export async function deleteShopProduct(id: number) {
+  await waitRandomly();
+  return await prisma.product.delete({ where: { id } });
 }

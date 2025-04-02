@@ -2,13 +2,15 @@
 
 import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Product } from "@/types/Product";
 
 type Props = {
   shopId: number;
-  product?: { name: string; quantity: number; id: number };
+  product?: Product;
+  onUpdate?: () => void;
 };
 
-export const ProductForm = ({ shopId, product }: Props) => {
+export const ProductForm = ({ shopId, product, onUpdate }: Props) => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [productName, setProductName] = useState(product?.name ?? "");
@@ -27,11 +29,15 @@ export const ProductForm = ({ shopId, product }: Props) => {
           quantity: productQuantity,
           ...(product ? { id: product.id } : { shopId }),
         };
-        await fetch("/api/product", {
+        const APIpath = product ? `/api/product/${product.id}` : "/api/product";
+        await fetch(APIpath, {
           method: product ? "PUT" : "POST",
           body: JSON.stringify(apiBody),
         });
+        setProductName("");
+        setProductQuantity(0);
         router.refresh();
+        onUpdate?.();
       } finally {
         setIsLoading(false);
       }
@@ -74,7 +80,9 @@ export const ProductForm = ({ shopId, product }: Props) => {
         value={productQuantity}
         onChange={onQuantityChange}
       />
-      <button disabled={!isInputValid || isLoading}>create</button>
+      <button disabled={!isInputValid || isLoading}>
+        {product ? "Update" : "Add"}
+      </button>
     </form>
   );
 };
